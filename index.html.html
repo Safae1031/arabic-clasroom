@@ -1,0 +1,18 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>阿语动词变位 · 随机抽卡</title><style>*{box-sizing:border-box}body{font-family:system-ui,'Microsoft YaHei',sans-serif;background:#f2f5fa;color:#233047;min-height:100vh;display:grid;place-items:center;margin:0;padding:18px}.app{width:min(560px,100%);text-align:center}h1{font-size:1.65rem;margin:0 0 10px}p{color:#68758a}.card{margin:26px auto 18px;min-height:260px;border-radius:22px;background:white;box-shadow:0 12px 35px #2038581c;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px;transition:transform .2s}.card.flip{animation:flip .35s}@keyframes flip{50%{transform:scale(.94)}}.label{font-size:.95rem;color:#718097}.chinese{font-size:clamp(2rem,7vw,3.2rem);font-weight:750;margin:22px 0}.arabic{font-family:'Times New Roman',serif;direction:rtl;font-size:2.5rem;color:#176b66;min-height:60px}.hint{font-size:.85rem;color:#8893a5}button{border:0;border-radius:12px;padding:13px 21px;font-size:1.05rem;font-weight:650;cursor:pointer;margin:5px;background:#e1e9f4;color:#263c57}button.primary{background:#2467b1;color:white}button:hover{filter:brightness(.95)}.status{margin-top:14px;color:#65758b;font-size:.9rem}.controls{display:flex;flex-wrap:wrap;justify-content:center}.check{display:block;margin:15px;color:#53647c;font-size:.9rem}</style></head><body><main class="app"><h1>阿拉伯语动词变位 · 随机抽卡</h1><p>看到汉语人称后，请学生说出指定动词的对应变位。</p><div class="card" id="card" aria-live="polite"><div class="label">当前抽到的人称</div><div class="chinese" id="zh">点击下方开始抽卡</div><div class="arabic" id="ar"></div><div class="hint" id="hint">可点击“显示答案”查看对应阿语人称</div></div><div class="controls"><button class="primary" id="draw">🎴 抽一张</button><button id="reveal" disabled>显示阿语人称</button><button id="reset">重新洗牌</button></div><label class="check"><input type="checkbox" id="repeat"> 允许重复抽取（默认14张抽完才重新洗牌）</label><div class="status" id="status">共14张卡 · 等待开始</div></main><script>
+// 阿语传统14个变位槽位：أنتما（阳性/阴性）与هما（阳性/阴性）分别作为卡片。
+const cards=[
+['我','أَنَا'],['我们','نَحْنُ'],
+['你（男性单数）','أَنْتَ'],['你（女性单数）','أَنْتِ'],
+['你们俩（男性）','أَنْتُمَا'],['你们俩（女性）','أَنْتُمَا'],
+['你们（男性复数）','أَنْتُمْ'],['你们（女性复数）','أَنْتُنَّ'],
+['他','هُوَ'],['她','هِيَ'],
+['他们俩（男性）','هُمَا'],['她们俩（女性）','هُمَا'],
+['他们（男性复数）','هُمْ'],['她们（女性复数）','هُنَّ']
+];
+let deck=[],current=null,drawn=0;const $=id=>document.getElementById(id);
+function shuffle(){deck=cards.map((_,i)=>i);for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}drawn=0;status();}
+function status(extra=''){$('status').textContent=extra||($('repeat').checked?`自由随机模式 · 已抽取 ${drawn} 次`:`本轮已抽 ${drawn}/14 张 · 剩余 ${deck.length} 张`);}
+$('draw').onclick=()=>{if($('repeat').checked){let idx=Math.floor(Math.random()*cards.length);if(current!==null&&cards.length>1&&idx===current)idx=(idx+1+Math.floor(Math.random()*(cards.length-1)))%cards.length;current=idx;drawn++;}else{if(!deck.length)shuffle();current=deck.pop();drawn++;}let [zh]=cards[current];$('zh').textContent=zh;$('ar').textContent='';$('reveal').disabled=false;$('reveal').textContent='显示阿语人称';$('card').classList.remove('flip');void $('card').offsetWidth;$('card').classList.add('flip');status();};
+$('reveal').onclick=()=>{if(current===null)return;let showing=!!$('ar').textContent;$('ar').textContent=showing?'':cards[current][1];$('reveal').textContent=showing?'显示阿语人称':'隐藏阿语人称';};
+$('reset').onclick=()=>{shuffle();current=null;$('zh').textContent='点击下方开始抽卡';$('ar').textContent='';$('reveal').disabled=true;$('reveal').textContent='显示阿语人称';};$('repeat').onchange=()=>{shuffle();status();};shuffle();
+</script></body></html>
